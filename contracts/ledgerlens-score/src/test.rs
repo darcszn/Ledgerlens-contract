@@ -280,6 +280,20 @@ fn test_get_scores_batch_delegated_wallet() {
 }
 
 #[test]
+fn test_get_min_score_returns_zero() {
+    let (_env, client, admin, service) = setup();
+    client.initialize(&admin, &service);
+    assert_eq!(client.get_min_score(), 0);
+}
+
+#[test]
+fn test_get_max_score_returns_hundred() {
+    let (_env, client, admin, service) = setup();
+    client.initialize(&admin, &service);
+    assert_eq!(client.get_max_score(), 100);
+}
+
+#[test]
 fn test_submit_score_invalid_score_range_rejected() {
     let (env, client, admin, service) = setup();
     client.initialize(&admin, &service);
@@ -701,6 +715,18 @@ fn test_risk_threshold_above_100_rejected() {
     let (env, client, _admin, _service) = initialized();
     let result = client.try_set_risk_threshold(&Vec::new(&env), &101);
     assert_eq!(result, Err(Ok(Error::InvalidScore)));
+}
+
+// ── get_score_threshold ───────────────────────────────────────────────────────
+
+#[test]
+fn test_get_score_threshold_matches_admin_set_value() {
+    let (env, client, _admin, _service) = initialized();
+    // Default before any admin update.
+    assert_eq!(client.get_score_threshold(), 75);
+    // After admin sets a new threshold, get_score_threshold reflects it.
+    client.set_risk_threshold(&Vec::new(&env), &60);
+    assert_eq!(client.get_score_threshold(), 60);
 }
 
 // ── Score history ─────────────────────────────────────────────────────────────
